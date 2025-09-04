@@ -10,8 +10,15 @@ export async function createPoll(formData: FormData) {
   const question = formData.get("question") as string;
   const options = formData.getAll("options").filter(Boolean) as string[];
 
-  if (!question || options.length < 2) {
-    return { error: "Please provide a question and at least two options." };
+  // Basic input validation
+  if (!question || question.trim() === "") {
+    return { error: "Poll question cannot be empty." };
+  }
+  if (options.length < 2) {
+    return { error: "Please provide at least two options." };
+  }
+  if (options.some(option => option.trim() === "")) {
+    return { error: "Options cannot be empty." };
   }
 
   // Get user from session
@@ -80,6 +87,21 @@ export async function submitVote(pollId: string, optionIndex: number) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Fetch the poll to validate pollId and optionIndex
+  const { data: poll, error: pollError } = await supabase
+    .from("polls")
+    .select("options")
+    .eq("id", pollId)
+    .single();
+
+  if (pollError || !poll) {
+    return { error: pollError?.message || "Poll not found." };
+  }
+
+  if (optionIndex < 0 || optionIndex >= poll.options.length) {
+    return { error: "Invalid option selected." };
+  }
+
   // Optionally require login to vote
   // if (!user) return { error: 'You must be logged in to vote.' };
 
@@ -98,6 +120,29 @@ export async function submitVote(pollId: string, optionIndex: number) {
 // DELETE POLL
 export async function deletePoll(id: string) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "You must be logged in to delete a poll." };
+  }
+
+  // Verify that the user owns the poll before deleting
+  const { data: poll, error: fetchError } = await supabase
+    .from("polls")
+    .select("user_id")
+    .eq("id", id)
+    .single();
+
+  if (fetchError || !poll) {
+    return { error: fetchError?.message || "Poll not found." };
+  }
+
+  if (poll.user_id !== user.id) {
+    return { error: "You are not authorized to delete this poll." };
+  }
+
   const { error } = await supabase.from("polls").delete().eq("id", id);
   if (error) return { error: error.message };
   revalidatePath("/polls");
@@ -111,8 +156,15 @@ export async function updatePoll(pollId: string, formData: FormData) {
   const question = formData.get("question") as string;
   const options = formData.getAll("options").filter(Boolean) as string[];
 
-  if (!question || options.length < 2) {
-    return { error: "Please provide a question and at least two options." };
+  // Basic input validation
+  if (!question || question.trim() === "") {
+    return { error: "Poll question cannot be empty." };
+  }
+  if (options.length < 2) {
+    return { error: "Please provide at least two options." };
+  }
+  if (options.some(option => option.trim() === "")) {
+    return { error: "Options cannot be empty." };
   }
 
   // Get user from session
