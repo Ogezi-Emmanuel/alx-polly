@@ -4,6 +4,11 @@ import { getUserPolls } from '@/app/lib/actions/poll-actions';
 import PollActions from './PollActions'; 
 
 export default async function PollsPage() {
+  /**
+   * PollsPage component displays a list of polls created by the current user.
+   * It fetches user-specific polls using a Server Action and provides an option to create new polls.
+   * Displays a message if no polls are found.
+   */
   const { polls, error } = await getUserPolls();
 
   return (
@@ -16,6 +21,7 @@ export default async function PollsPage() {
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {polls && polls.length > 0 ? (
+          // Render PollActions component for each poll if polls exist.
           polls.map((poll) => <PollActions key={poll.id} poll={poll} />)
         ) : (
           <div className="flex flex-col items-center justify-center py-12 text-center col-span-full">

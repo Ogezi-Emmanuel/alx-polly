@@ -1,13 +1,13 @@
 # ALX Polly: A Polling Application
 
-Welcome to ALX Polly, a full-stack polling application built with Next.js, TypeScript, and Supabase. This project serves as a practical learning ground for modern web development concepts, with a special focus on identifying and fixing common security vulnerabilities.
+Welcome to ALX Polly, a full-stack polling application built with Next.js, TypeScript, and Supabase. This project allows users to register, create polls, and share them via unique links and QR codes for others to vote on.
 
-## About the Application
+## Project Overview and Tech Stack
 
-ALX Polly allows authenticated users to create, share, and vote on polls. It's a simple yet powerful application that demonstrates key features of modern web development:
+ALX Polly is a simple yet powerful application that demonstrates key features of modern web development:
 
 -   **Authentication**: Secure user sign-up and login.
--   **Poll Management**: Users can create, view, and delete their own polls.
+-   **Poll Management**: Users can create, view, edit, and delete their own polls.
 -   **Voting System**: A straightforward system for casting and viewing votes.
 -   **User Dashboard**: A personalized space for users to manage their polls.
 
@@ -19,57 +19,54 @@ The application is built with a modern tech stack:
 -   **UI**: [Tailwind CSS](https://tailwindcss.com/) with [shadcn/ui](https://ui.shadcn.com/)
 -   **State Management**: React Server Components and Client Components
 
----
-
-## 🚀 The Challenge: Security Audit & Remediation
-
-As a developer, writing functional code is only half the battle. Ensuring that the code is secure, robust, and free of vulnerabilities is just as critical. This version of ALX Polly has been intentionally built with several security flaws, providing a real-world scenario for you to practice your security auditing skills.
-
-**Your mission is to act as a security engineer tasked with auditing this codebase.**
-
-### Your Objectives:
-
-1.  **Identify Vulnerabilities**:
-    -   Thoroughly review the codebase to find security weaknesses.
-    -   Pay close attention to user authentication, data access, and business logic.
-    -   Think about how a malicious actor could misuse the application's features.
-
-2.  **Understand the Impact**:
-    -   For each vulnerability you find, determine the potential impact.Query your AI assistant about it. What data could be exposed? What unauthorized actions could be performed?
-
-3.  **Propose and Implement Fixes**:
-    -   Once a vulnerability is identified, ask your AI assistant to fix it.
-    -   Write secure, efficient, and clean code to patch the security holes.
-    -   Ensure that your fixes do not break existing functionality for legitimate users.
-
-### Where to Start?
-
-A good security audit involves both static code analysis and dynamic testing. Here’s a suggested approach:
-
-1.  **Familiarize Yourself with the Code**:
-    -   Start with `app/lib/actions/` to understand how the application interacts with the database.
-    -   Explore the page routes in the `app/(dashboard)/` directory. How is data displayed and managed?
-    -   Look for hidden or undocumented features. Are there any pages not linked in the main UI?
-
-2.  **Use Your AI Assistant**:
-    -   This is an open-book test. You are encouraged to use AI tools to help you.
-    -   Ask your AI assistant to review snippets of code for security issues.
-    -   Describe a feature's behavior to your AI and ask it to identify potential attack vectors.
-    -   When you find a vulnerability, ask your AI for the best way to patch it.
-
----
-
 ## Getting Started
 
-To begin your security audit, you'll need to get the application running on your local machine.
+To get the application running on your local machine, follow these steps:
 
 ### 1. Prerequisites
 
 -   [Node.js](https://nodejs.org/) (v20.x or higher recommended)
 -   [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
--   A [Supabase](https://supabase.io/) account (the project is pre-configured, but you may need your own for a clean slate).
+-   A [Supabase](https://supabase.io/) account.
 
-### 2. Installation
+### 2. Supabase Configuration
+
+1.  **Create a new Supabase project**: Go to your [Supabase dashboard](https://app.supabase.io/) and create a new project.
+2.  **Get your API keys**: Navigate to `Project Settings > API` to find your `Project URL` and `anon public` key.
+3.  **Set up your database schema**: You'll need to create a `polls` table and a `votes` table. Here's a basic schema:
+
+    ```sql
+    -- polls table
+    create table polls (
+      id uuid primary key default uuid_generate_v4(),
+      user_id uuid references auth.users(id) on delete cascade,
+      question text not null,
+      options jsonb not null,
+      created_at timestamp with time zone default now()
+    );
+
+    -- votes table
+    create table votes (
+      id uuid primary key default uuid_generate_v4(),
+      poll_id uuid references polls(id) on delete cascade,
+      user_id uuid references auth.users(id) on delete set null,
+      option_index int not null,
+      created_at timestamp with time zone default now()
+    );
+    ```
+
+### 3. Environment Variables
+
+Create a `.env.local` file in the root of your project and add the following:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=YOUR_SUPABASE_PROJECT_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+```
+
+Replace `YOUR_SUPABASE_PROJECT_URL` and `YOUR_SUPABASE_ANON_KEY` with your actual Supabase project URL and anon public key.
+
+### 4. Installation
 
 Clone the repository and install the dependencies:
 
@@ -79,11 +76,7 @@ cd alx-polly
 npm install
 ```
 
-### 3. Environment Variables
-
-The project uses Supabase for its backend. An environment file `.env.local` is needed.Use the keys you created during the Supabase setup process.
-
-### 4. Running the Development Server
+### 5. Running the Development Server
 
 Start the application in development mode:
 
@@ -93,4 +86,27 @@ npm run dev
 
 The application will be available at `http://localhost:3000`.
 
-Good luck, engineer! This is your chance to step into the shoes of a security professional and make a real impact on the quality and safety of this application. Happy hunting!
+## Usage Examples
+
+### Creating Polls
+
+1.  Register or log in to your account.
+2.  Navigate to the "Create Poll" page.
+3.  Enter your poll question and at least two options.
+4.  Click "Create Poll". Your new poll will appear on your dashboard.
+
+### Voting on Polls
+
+1.  Browse to a poll's unique URL.
+2.  Select your preferred option.
+3.  Click "Vote". Your vote will be recorded.
+
+## How to Run and Test the App Locally
+
+1.  **Start the development server**: Ensure your Supabase project is set up and your `.env.local` file is configured correctly. Then, run `npm run dev`.
+2.  **Access the application**: Open your browser and go to `http://localhost:3000`.
+3.  **Test authentication**: Register a new user and log in/out to ensure the authentication flow works as expected.
+4.  **Test poll management**: Create, edit, and delete polls. Verify that only the poll owner can perform these actions.
+5.  **Test voting**: Vote on polls and observe the vote counts updating. Try voting as a logged-in user and as an anonymous user (if anonymous voting is enabled).
+
+This comprehensive documentation should help you understand, set up, and use the ALX Polly application. If you encounter any issues, please refer to the Supabase documentation or the Next.js documentation for further assistance.

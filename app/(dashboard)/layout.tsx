@@ -16,21 +16,35 @@ import {
 import { useAuth } from "@/app/lib/context/auth-context";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
+  /**
+   * DashboardLayout component for authenticated users.
+   * Manages user authentication state, redirects unauthenticated users to the login page,
+   * and provides a consistent layout with navigation, user avatar, and sign-out functionality.
+   *
+   * @param {Object} props - The component props.
+   * @param {ReactNode} props.children - The child components to be rendered within the layout.
+   */
   const { user, signOut, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    // Redirect unauthenticated users to the login page once loading is complete.
     if (!loading && !user) {
       router.push("/login");
     }
   }, [user, loading, router]);
 
   const handleSignOut = async () => {
+    /**
+     * Handles the user sign-out process.
+     * Calls the signOut function from the authentication context and redirects the user to the login page.
+     */
     await signOut();
     router.push("/login");
   };
 
   if (loading) {
+    // Display a loading message while the user session is being loaded.
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-50">
         <p>Loading user session...</p>
@@ -39,6 +53,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }
 
   if (!user) {
+    // If no user is found after loading, return null to prevent rendering the dashboard content.
     return null;
   }
 

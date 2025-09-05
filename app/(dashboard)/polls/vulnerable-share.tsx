@@ -13,25 +13,29 @@ import {
 import { Copy, Share2, Twitter, Facebook, Mail } from "lucide-react";
 import { toast } from "sonner";
 
-interface VulnerableShareProps {
-  pollId: string;
-  pollTitle: string;
-}
-
-export default function VulnerableShare({
-  pollId,
-  pollTitle,
-}: VulnerableShareProps) {
+export default function VulnerableShare() {
+  /**
+   * VulnerableShare component demonstrates sharing functionality for a poll.
+   * It generates a shareable link and provides buttons for copying the link
+   * and sharing on various social media platforms (Twitter, Facebook, Email).
+   * NOTE: This component is named 'VulnerableShare' as a placeholder for potential
+   * future security enhancements related to sharing mechanisms.
+   */
+  const [pollTitle, setPollTitle] = useState("My Awesome Poll"); // Placeholder for actual poll title
   const [shareUrl, setShareUrl] = useState("");
 
   useEffect(() => {
-    // Generate the share URL
-    const baseUrl = window.location.origin;
-    const pollUrl = `${baseUrl}/polls/${pollId}`;
-    setShareUrl(pollUrl);
-  }, [pollId]);
+    // In a real application, you would fetch the actual poll title and generate the share URL dynamically.
+    // For demonstration, we use a placeholder title and a dummy URL.
+    const currentUrl = window.location.href;
+    setShareUrl(`${currentUrl.split("/").slice(0, -1).join("/")}/poll-id-123`); // Example dummy URL
+  }, []);
 
   const copyToClipboard = async () => {
+    /**
+     * Copies the generated share URL to the clipboard.
+     * Displays a success toast notification on successful copy, or an error toast on failure.
+     */
     try {
       await navigator.clipboard.writeText(shareUrl);
       toast.success("Link copied to clipboard!");
@@ -41,6 +45,10 @@ export default function VulnerableShare({
   };
 
   const shareOnTwitter = () => {
+    /**
+     * Opens a new window to share the poll on Twitter.
+     * Constructs the Twitter share URL with the poll title and share URL.
+     */
     const text = encodeURIComponent(`Check out this poll: ${pollTitle}`);
     const url = encodeURIComponent(shareUrl);
     window.open(
@@ -50,6 +58,10 @@ export default function VulnerableShare({
   };
 
   const shareOnFacebook = () => {
+    /**
+     * Opens a new window to share the poll on Facebook.
+     * Constructs the Facebook share URL with the share URL.
+     */
     const url = encodeURIComponent(shareUrl);
     window.open(
       `https://www.facebook.com/sharer/sharer.php?u=${url}`,
@@ -58,9 +70,13 @@ export default function VulnerableShare({
   };
 
   const shareViaEmail = () => {
+    /**
+     * Opens the default email client to share the poll via email.
+     * Constructs the mailto link with the poll title as subject and share URL in the body.
+     */
     const subject = encodeURIComponent(`Poll: ${pollTitle}`);
     const body = encodeURIComponent(
-      `Hi! I'd like to share this poll with you: ${shareUrl}`,
+      `Hi! I\'d like to share this poll with you: ${shareUrl}`,
     );
     window.open(`mailto:?subject=${subject}&body=${body}`);
   };

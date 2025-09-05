@@ -17,10 +17,23 @@ interface PollActionsProps {
 }
 
 export default function PollActions({ poll }: PollActionsProps) {
+  /**
+   * PollActions component displays a single poll with options to view, edit, and delete.
+   * It conditionally renders edit and delete buttons based on whether the current user is the poll owner.
+   *
+   * @param {Object} props - The component props.
+   * @param {Poll} props.poll - The poll object to display and manage.
+   */
   const { user } = useAuth();
   const handleDelete = async () => {
+    /**
+     * Handles the deletion of a poll.
+     * Prompts the user for confirmation before calling the deletePoll server action.
+     * Reloads the page upon successful deletion.
+     */
     if (confirm("Are you sure you want to delete this poll?")) {
       await deletePoll(poll.id);
+      // Reload the page to reflect the deletion.
       window.location.reload();
     }
   };

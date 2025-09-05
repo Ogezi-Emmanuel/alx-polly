@@ -21,15 +21,27 @@ interface Poll {
 }
 
 export default function AdminPage() {
+  /**
+   * AdminPage component for viewing and managing all polls in the system.
+   * This component fetches all polls from Supabase and allows an authenticated user
+   * to view poll details and delete polls. It includes loading states and handles
+   * the deletion process.
+   */
   const [polls, setPolls] = useState<Poll[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
 
   useEffect(() => {
+    // Fetch all polls when the component mounts.
     fetchAllPolls();
   }, []);
 
   const fetchAllPolls = async () => {
+    /**
+     * Fetches all polls from the Supabase database.
+     * Sets the loading state and updates the polls state with the fetched data.
+     * Handles any errors during the fetch operation.
+     */
     const supabase = createClient();
 
     const { data, error } = await supabase
@@ -44,10 +56,17 @@ export default function AdminPage() {
   };
 
   const handleDelete = async (pollId: string) => {
+    /**
+     * Handles the deletion of a poll.
+     * Sets a loading state for the specific poll being deleted, calls the deletePoll server action,
+     * and updates the local state to remove the deleted poll if successful.
+     * @param {string} pollId - The ID of the poll to be deleted.
+     */
     setDeleteLoading(pollId);
     const result = await deletePoll(pollId);
 
     if (!result.error) {
+      // Filter out the deleted poll from the local state.
       setPolls(polls.filter((poll) => poll.id !== pollId));
     }
 
@@ -55,6 +74,7 @@ export default function AdminPage() {
   };
 
   if (loading) {
+    // Display a loading message while polls are being fetched.
     return <div className="p-6">Loading all polls...</div>;
   }
 

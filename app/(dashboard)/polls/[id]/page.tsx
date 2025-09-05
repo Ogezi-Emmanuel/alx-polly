@@ -22,30 +22,46 @@ const mockPoll = {
   createdBy: 'John Doe',
 };
 
-export default function PollDetailPage({ params }: { params: { id: string } }) {
+interface PollPageProps {
+  params: { id: string };
+}
+
+export default function PollPage({ params }: PollPageProps) {
+  /**
+   * PollPage component displays a single poll, handles user voting, and shows results.
+   * It uses mock data for demonstration purposes. In a real application, this would
+   * fetch poll data from a backend and submit votes to it.
+   */
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // In a real app, you would fetch the poll data based on the ID
-  const poll = mockPoll;
-  const totalVotes = poll.options.reduce((sum, option) => sum + option.votes, 0);
-
-  const handleVote = () => {
-    if (!selectedOption) return;
-    
-    setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setHasVoted(true);
-      setIsSubmitting(false);
-    }, 1000);
-  };
+  const totalVotes = mockPoll.options.reduce((sum, option) => sum + option.votes, 0);
 
   const getPercentage = (votes: number) => {
+    /**
+     * Calculates the percentage of votes for a given option.
+     * @param {number} votes - The number of votes for the option.
+     * @returns {number} The percentage of votes, or 0 if totalVotes is 0.
+     */
     if (totalVotes === 0) return 0;
     return Math.round((votes / totalVotes) * 100);
+  };
+
+  const handleVote = () => {
+    /**
+     * Handles the user's vote submission.
+     * Simulates an asynchronous vote submission process and updates the UI to show results.
+     * In a real application, this would involve calling a server action to record the vote.
+     */
+    if (selectedOption) {
+      setIsSubmitting(true);
+      // Simulate API call
+      setTimeout(() => {
+        setHasVoted(true);
+        setIsSubmitting(false);
+      }, 1000);
+    }
   };
 
   return (
@@ -66,13 +82,13 @@ export default function PollDetailPage({ params }: { params: { id: string } }) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">{poll.title}</CardTitle>
-          <CardDescription>{poll.description}</CardDescription>
+          <CardTitle className="text-2xl">{mockPoll.title}</CardTitle>
+          <CardDescription>{mockPoll.description}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {!hasVoted ? (
             <div className="space-y-3">
-              {poll.options.map((option) => (
+              {mockPoll.options.map((option) => (
                 <div 
                   key={option.id} 
                   className={`p-3 border rounded-md cursor-pointer transition-colors ${selectedOption === option.id ? 'border-blue-500 bg-blue-50' : 'hover:bg-slate-50'}`}
@@ -92,7 +108,7 @@ export default function PollDetailPage({ params }: { params: { id: string } }) {
           ) : (
             <div className="space-y-4">
               <h3 className="font-medium">Results:</h3>
-              {poll.options.map((option) => (
+              {mockPoll.options.map((option) => (
                 <div key={option.id} className="space-y-1">
                   <div className="flex justify-between text-sm">
                     <span>{option.text}</span>
@@ -113,8 +129,8 @@ export default function PollDetailPage({ params }: { params: { id: string } }) {
           )}
         </CardContent>
         <CardFooter className="text-sm text-slate-500 flex justify-between">
-          <span>Created by {poll.createdBy}</span>
-          <span>Created on {new Date(poll.createdAt).toLocaleDateString()}</span>
+          <span>Created by {mockPoll.createdBy}</span>
+          <span>Created on {new Date(mockPoll.createdAt).toLocaleDateString()}</span>
         </CardFooter>
       </Card>
 
