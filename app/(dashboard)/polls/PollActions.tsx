@@ -47,7 +47,7 @@ export default function PollActions({ poll }: PollActionsProps) {
               <h2 className="group-hover:text-blue-600 transition-colors font-bold text-lg">
                 {poll.question}
               </h2>
-              <p className="text-slate-500">{poll.options.length} options</p>
+              <p className="text-slate-500">{poll.options?.length || 0} options</p>
             </div>
           </div>
         </div>

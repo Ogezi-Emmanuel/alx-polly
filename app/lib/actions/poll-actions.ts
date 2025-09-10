@@ -40,22 +40,26 @@ export async function createPoll(formData: FormData) {
     return { error: "You must be logged in to create a poll." };
   }
 
-  // Insert the new poll into the 'polls' table.
-  const { error } = await supabase.from("polls").insert([
-    {
-      user_id: user.id,
-      question,
-      options,
-    },
-  ]);
+  // Insert the new poll into the 'polls' table and return the created record.
+  const { data: newPoll, error } = await supabase
+    .from("polls")
+    .insert([
+      {
+        user_id: user.id,
+        question,
+        options,
+      },
+    ])
+    .select()
+    .single();
 
   if (error) {
-    return { error: error.message };
+    return { error: error.message, poll: null };
   }
 
   // Revalidate the '/polls' path to show the new poll immediately.
   revalidatePath("/polls");
-  return { error: null };
+  return { error: null, poll: newPoll };
 }
 
 /**
