@@ -1,25 +1,25 @@
 import { z } from 'zod';
 
 export const PollSchema = z.object({
-  id: z.string().uuid().optional().default('extensions.uuid_generate_v4()'),
-  created_at: z.string().datetime().optional().default('now()'),
+  id: z.string().uuid().optional(),
+  created_at: z.string().datetime().optional(),
   question: z.string(),
   user_id: z.string().uuid().nullable().optional(),
 });
 
 export const OptionSchema = z.object({
-  id: z.string().uuid().optional().default('extensions.uuid_generate_v4()'),
-  created_at: z.string().datetime().optional().default('now()'),
+  id: z.string().uuid().default(() => crypto.randomUUID()),
+  created_at: z.string().datetime().default(() => new Date().toISOString()),
   poll_id: z.string().uuid().nullable().optional(),
   text: z.string(),
   votes: z.number().int().optional().default(0),
 });
 
 export const VoteSchema = z.object({
-  id: z.string().uuid().optional().default('extensions.uuid_generate_v4()'),
+  id: z.string().uuid().optional().default(() => crypto.randomUUID()),
   option_id: z.string(),
   poll_id: z.string(),
-  created_at: z.string().datetime().optional().default('now()'),
+  created_at: z.string().datetime().optional().default(() => new Date().toISOString()),
   user_id: z.string().uuid().nullable().optional(),
 });
 
@@ -40,7 +40,7 @@ export interface Database {
     Tables: {
       polls: {
         Row: Poll;
-        Insert: Poll;
+        Insert: Omit<Poll, 'id' | 'created_at'>;
         Update: Partial<Poll>;
         Relationships: [
           {
@@ -54,7 +54,7 @@ export interface Database {
       };
       options: {
         Row: Option;
-        Insert: Option;
+        Insert: Omit<Option, 'id' | 'created_at'>;
         Update: Partial<Option>;
         Relationships: [
           {
@@ -68,7 +68,7 @@ export interface Database {
       };
       votes: {
         Row: Vote;
-        Insert: Vote;
+        Insert: Omit<Vote, 'id' | 'created_at'>;
         Update: Partial<Vote>;
         Relationships: [];
       };
